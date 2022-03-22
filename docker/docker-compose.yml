@@ -1,0 +1,53 @@
+version: "3.8"
+services:
+  builder:
+    build: b2b-api-builder/.
+    image: b2b-api-builder
+    container_name: b2b-api-builder
+    volumes:
+      - ./output:/output
+      - ./maven-cache:/root/.m2
+    environment:
+      - GIT_USERNAME=rpatel
+      - GIT_PASSWORD=Hbn7QG%40123
+  db:
+    image: mysql:8
+    container_name: b2b-db
+    ports:
+      - 3306:3306
+    volumes:
+      - ./db-data:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_PASSWORD=b2b
+      - MYSQL_USER=b2b
+      - MYSQL_DATABASE=b2b
+  migration:
+    image: liquibase/liquibase
+    container_name: b2b-api-db-migrator
+    volumes:
+      - ./output/db:/db
+    working_dir: /db/changelogs
+    command: liquibase update --url=jdbc:mysql://db:3306/b2b
+    environment:
+      - INSTALL_MYSQL=true
+      - LIQUIBASE_URL=This won't work. To configure Liquibase with environment variables requires a Liquibase Pro license.
+    depends_on:
+      db:
+        condition: "service_started"
+      builder:
+        condition: "service_completed_successfully"
+  api:
+    image: openjdk:11
+    container_name: b2b-api
+    volumes:
+      - ./output:/opt/b2b-api
+    working_dir: /opt/b2b-api
+    command: java -jar b2b-api-server.jar --spring.datasource.url=jdbc:mysql://db:3306/b2b
+    environment:
+      - INSTALL_MYSQL=true
+    ports:
+      - 8081:8081
+    depends_on:
+      builder:
+        condition: "service_completed_successfully"
