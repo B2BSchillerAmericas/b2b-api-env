@@ -8,8 +8,8 @@ services:
       - ./output:/output
       - ./maven-cache:/root/.m2
     environment:
-      - GIT_USERNAME=rpatel
-      - GIT_PASSWORD=Hbn7QG%40123
+      - GIT_USERNAME=<USERNAME>
+      - GIT_PASSWORD=<PASSWORD>
   db:
     image: mysql:8
     container_name: b2b-db
@@ -45,7 +45,7 @@ services:
     working_dir: /opt/b2b-api
     command: java -jar b2b-api-server.jar --spring.datasource.url=jdbc:mysql://db:3306/b2b
     environment:
-      - INSTALL_MYSQL=true
+      - DEFAULT_LOCALE=en
     ports:
       - 8081:8081
     depends_on:
