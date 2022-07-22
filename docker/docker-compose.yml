@@ -45,6 +45,7 @@ services:
     container_name: b2b-mailtrap
     ports:
       - "2525:25"
+      - 8091:80
     volumes:
       - ./mailtrap-data:/var/mail
     restart: unless-stopped
